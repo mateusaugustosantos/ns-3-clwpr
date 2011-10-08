@@ -35,6 +35,7 @@
 #include "ns3/pointer.h"
 #include "ns3/net-device.h"
 #include "ns3/trace-source-accessor.h"
+#include "ns3/clwpr-routing-protocol.h"
 #include <math.h>
 
 NS_LOG_COMPONENT_DEFINE ("YansWifiPhy");
@@ -788,6 +789,14 @@ YansWifiPhy::EndReceive (Ptr<Packet> packet, Ptr<InterferenceHelper::Event> even
       double signalDbm = RatioToDb (event->GetRxPowerW ()) + 30;
       double noiseDbm = RatioToDb (event->GetRxPowerW () / snrPer.snr) - GetRxNoiseFigure () + 30;
       NotifyPromiscSniffRx (packet, (uint16_t)GetChannelFrequencyMhz (), GetChannelNumber (), dataRate500KbpsUnits, isShortPreamble, signalDbm, noiseDbm);
+      // **********  SNR TAG  *********** //
+      SnrTag tag(signalDbm - noiseDbm);
+      if (! packet->PeekPacketTag (tag))
+        {
+          packet->AddPacketTag (tag);
+          NS_LOG_DEBUG("Add SNR Tag with value :" << tag.snr);
+        }
+      // *********  SNR TAG  *********** //
       m_state->SwitchFromRxEndOk (packet, snrPer.snr, event->GetPayloadMode (), event->GetPreambleType ());
     }
   else

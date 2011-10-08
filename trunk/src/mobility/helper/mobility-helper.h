@@ -26,6 +26,7 @@
 #include "ns3/attribute.h"
 #include "ns3/position-allocator.h"
 #include "node-container.h"
+#include "ns3/clwpr-map.h"
 
 namespace ns3 {
 

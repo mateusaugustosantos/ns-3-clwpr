@@ -51,8 +51,9 @@ MobilityModel::GetTypeId (void)
 }
 
 MobilityModel::MobilityModel ()
-{
-}
+  : m_node(0), // Added Ramon Bauza 16/09/10
+    m_antennaHeight(1.5) // Added Ramon Bauza 21/09/10
+{}
 
 MobilityModel::~MobilityModel ()
 {
@@ -83,10 +84,54 @@ MobilityModel::GetDistanceFrom (Ptr<const MobilityModel> other) const
   return CalculateDistance (position, oPosition);
 }
 
+double
+MobilityModel::GetRelativeVelocity (Ptr<const MobilityModel> other) const
+{
+  double x = GetVelocity().x - other->GetVelocity().x;
+  double y = GetVelocity().y - other->GetVelocity().y;
+  double z = GetVelocity().z - other->GetVelocity().z;
+  return sqrt( (x*x) + (y*y) + (z*z) );
+}
+
 void
 MobilityModel::NotifyCourseChange (void) const
 {
-  m_courseChangeTrace (this);
+  m_courseChangeTrace(this);
+}
+
+// Added Ramon Bauza 16/09/10
+float
+MobilityModel::GetAntennaHeight (void) const
+{
+  return DoGetAntennaHeight ();
+}
+
+// Added Ramon Bauza 21/09/10
+void 
+MobilityModel::SetAntennaHeight (const float &antennaHeight)
+{
+  m_antennaHeight = antennaHeight;
+}
+
+// Added Ramon Bauza 21/09/10
+float 
+MobilityModel::DoGetAntennaHeight (void) const
+{
+  return m_antennaHeight;
+}
+
+// Added Ramon Bauza 16/09/10
+Ptr<Node> 
+MobilityModel::GetNode (void) const
+{
+  return m_node;
+}
+
+// Added Ramon Bauza 16/09/10
+void 
+MobilityModel::SetNode (Ptr<Node> node) 
+{
+  m_node = node;
 }
 
 } // namespace ns3

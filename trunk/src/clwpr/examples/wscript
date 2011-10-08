@@ -1,0 +1,10 @@
+## -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+def build(bld):
+    obj = bld.create_ns3_program('simple-point-to-point-clwpr',
+                                 ['point-to-point', 'internet-stack', 'clwpr'])
+    obj.source = 'simple-point-to-point-clwpr.cc'
+
+    obj = bld.create_ns3_program('clwpr-hna',
+                                 ['core', 'simulator', 'mobility', 'wifi'])
+    obj.source = 'clwpr-hna.cc'
