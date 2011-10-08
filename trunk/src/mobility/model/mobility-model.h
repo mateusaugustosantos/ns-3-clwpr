@@ -23,6 +23,8 @@
 #include "ns3/vector.h"
 #include "ns3/object.h"
 #include "ns3/traced-callback.h"
+#include "ns3/node.h" // Added Ramon Bauza 16/09/10
+#include "ns3/clwpr-map.h"
 
 namespace ns3 {
 
@@ -60,6 +62,18 @@ public:
    * \return the distance between the two objects. Unit is meters.
    */
   double GetDistanceFrom (Ptr<const MobilityModel> position) const;
+  
+ /**
+   * \param velocity reference to another mobility model
+   * \returns the relative speed between the two objects. Unit is meters/s.
+   */
+  double GetRelativeVelocity (Ptr<const MobilityModel> velocity) const;
+
+  float GetAntennaHeight (void) const; // Added Ramon Bauza 16/09/10
+  virtual void SetAntennaHeight (const float &antennaHeight); // Added Ramon Bauza 21/09/10
+  Ptr<Node> GetNode (void) const; // Added Ramon Bauza 16/09/10
+  void SetNode (Ptr<Node> node); // Added Ramon Bauza 16/09/10
+
 protected:
   /**
    * Must be invoked by subclasses when the course of the
@@ -94,6 +108,10 @@ private:
    * or position has occurred.
    */
   TracedCallback<Ptr<const MobilityModel> > m_courseChangeTrace;
+
+  virtual float DoGetAntennaHeight (void) const; // Added Ramon Bauza 21/09/10
+  Ptr<Node> m_node; // Added Ramon Bauza 16/09/10
+  float m_antennaHeight; // Added Ramon Bauza 21/09/10
 
 };
 

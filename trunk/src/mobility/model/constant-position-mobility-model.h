@@ -21,7 +21,7 @@
 #define CONSTANT_POSITION_MOBILITY_MODEL_H
 
 #include "mobility-model.h"
-
+#include "ns3/clwpr-map.h"
 namespace ns3 {
 
 /**
@@ -45,6 +45,7 @@ private:
   virtual Vector DoGetVelocity (void) const;
 
   Vector m_position;
+  clwpr::GridMap m_map;
 };
 
 }; // namespace ns3
