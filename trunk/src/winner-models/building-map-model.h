@@ -46,16 +46,16 @@ public:
   static TypeId GetTypeId (void);
   BuildingMapModel (void);
   ~BuildingMapModel ();
-  BuildingMapModel (std::string path, Ptr<clwpr::GridMap> map);
+  BuildingMapModel (std::string path, Ptr<GridMap> map);
   bool GetVisibility (Ptr<MobilityModel> a, Ptr<MobilityModel> b) const;
   void GetNlosDistances(Ptr<MobilityModel> a, Ptr<MobilityModel> b, double &dist1, double &dist2) const;
   void InitializeVisibilityModel (void);
-  void SetGridMap (Ptr<clwpr::GridMap> map);
+  void SetGridMap (Ptr<GridMap> map);
 
 private:
   bool DoSegmentsIntersect (BuildingMapModel::Segment seg1, BuildingMapModel::Segment seg2) const;
   std::vector<struct BuildingMapModel::Segment> m_buildingList;
-  Ptr<clwpr::GridMap> m_map;
+  Ptr<GridMap> m_map;
 };
 
 } // namespace ns3

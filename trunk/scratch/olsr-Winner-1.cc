@@ -6,7 +6,7 @@
 #include "ns3/internet-module.h"
 #include "ns3/mobility-module.h"
 #include "ns3/wifi-module.h"
-#include "ns3/clwpr-module.h"
+#include "ns3/olsr-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/flow-monitor-module.h"
 #include "ns3/winner-models-module.h"
@@ -50,35 +50,12 @@ static void GenerateTraffic (Ptr<Socket> socket, uint32_t pktSize,
     }
 }
 
-static void PacketCnF (const Ipv4Header &header, Ptr< const Packet> p){
-
-  NS_LOG_INFO ("A packet from: "<< header.GetIdentification() <<" to: " << header.GetDestination() << " has been queued (CnF)");
-  NS_LOG_INFO ( "CnF packet" );
-}
-
-static void PacketDequeue (const Ipv4Header &header, Ptr< const Packet> p){
-
-  NS_LOG_INFO ("A packet from: "<< header.GetIdentification() <<" to: " << header.GetDestination() << " has been queued (CnF)");
-  NS_LOG_INFO (" Route Found ");
-}
-
 static void PacketDrop (const Ipv4Header &header, Ptr<const Packet> p, ns3::Ipv4L3Protocol::DropReason reason, Ptr<Ipv4> ipv4, uint32_t _if){
 
   NS_LOG_INFO ("A packet with ID "<< header.GetIdentification() << " has been dropped (Ipv4L3) at node " << ipv4->GetAddress(1,0));
   NS_LOG_INFO (" The reason is :" << reason);
 
   NS_LOG_INFO (" Drop Packet because "<< reason );
-}
-
-static void MacTrace (Ptr<const Packet> p){
-  NS_LOG_DEBUG ("A packet has been Received by MAC");
-  clwpr::SnrTag tag;
-  if (p->PeekPacketTag(tag)){
-      NS_LOG_DEBUG ("Received Packet with SRN = " << tag.snr);
-      SNRtmp += tag.snr;
-      SNRtmp2 += tag.snr*tag.snr;
-      RxCount ++;
-  }
 }
 
 static void WifiRemStationTrace (Mac48Address){
@@ -110,25 +87,10 @@ int main (int argc, char *argv[])
   double interval = 2.0; // seconds
   bool verbose = false;
   bool tracing = false;
-  bool map = false;
-  bool debug = false;
-  bool predict = false;
-  bool cache = false;
-  double cacheTime = 10.0;
   int range = 500;
-  double hello = 1.5;
-  double txrth = 0;
   bool vanet = false;
-  double AngFactor = 1;
-  double DistFactor = 1;
-  double UtilFactor = 1;
-  double MACFactor = 1;
-  double CnFFactor = 1;
-  double RoadFactor = 1;
-  double SNRFactor = -1;
-  bool normalize=false;
-  bool enchance = false;
   bool winner = true;
+  bool debug = false;
   CommandLine cmd;
 
   cmd.AddValue ("phyMode", "Wifi Phy mode", phyMode);
@@ -142,26 +104,8 @@ int main (int argc, char *argv[])
   cmd.AddValue ("traceFile", "Ns2 movement trace file", traceFile);
   cmd.AddValue ("movingNodes", "Number of moving nodes", movingNodes);
   cmd.AddValue ("duration", "Duration of Simulation", duration);
-
-  cmd.AddValue ("map", "Enable the MAP integration", map);
-  cmd.AddValue ("emap", "Enable the MAP integration", enchance);
-  cmd.AddValue ("norm", "Enable the MAP integration", normalize);
-  cmd.AddValue ("predict", "Enable the Position prediction", predict);
   cmd.AddValue ("dbg", "turn on Debug tracing", debug);
   cmd.AddValue ("TxR", "Select TxRange -- 250 or 500m", range);
-  cmd.AddValue ("hello", "Hello Interval time in seconds", hello);
-  cmd.AddValue ("cT", "Caching time in seconds", cacheTime);
-  cmd.AddValue ("CnF", "Enabling Carry'n'Forward mechanism", cache);
-
-  cmd.AddValue ("AngFactor", "Enabling Carry'n'Forward mechanism", AngFactor);
-  cmd.AddValue ("DistFactor", "Enabling Carry'n'Forward mechanism", DistFactor);
-  cmd.AddValue ("UtilFactor", "Enabling Carry'n'Forward mechanism", UtilFactor);
-  cmd.AddValue ("MACFactor", "Enabling Carry'n'Forward mechanism", MACFactor);
-  cmd.AddValue ("CnFFactor", "Enabling Carry'n'Forward mechanism", CnFFactor);
-  cmd.AddValue ("RoadFactor", "Enabling Carry'n'Forward mechanism", RoadFactor);
-  cmd.AddValue ("SNRFactor", "Enabling Carry'n'Forward mechanism", SNRFactor);
-
-  cmd.AddValue ("TxRTh", "Select Tx Threshold for neighbor selection", txrth);
   cmd.AddValue ("vanet", " Set 802.11p ", vanet);
   cmd.AddValue ("winner", " ENABLE WINNEL PROPAGATION LOSS MODELS ", winner);
   cmd.Parse (argc, argv);
@@ -280,33 +224,15 @@ int main (int argc, char *argv[])
   ns2.Install (); // configure movements for each node, while reading trace file
 
   // Enable CLWPR
-  ClwprHelper clwpr;
-  
-  clwpr.Set("MapFlag", BooleanValue(map));
-  clwpr.Set("PredictFlag", BooleanValue (predict));
-  clwpr.Set("HelloInterval", TimeValue(Seconds(hello)));
-  clwpr.Set("CacheFlag", BooleanValue(cache));
-  clwpr.Set("MaxQueueTime", TimeValue(Seconds(cacheTime)));
-  clwpr.Set("TxThreshold", DoubleValue(range - txrth));
+  OlsrHelper olsr;
 
-  clwpr.Set("NormFlag", BooleanValue(normalize));
-  clwpr.Set("EMapFlag", BooleanValue(enchance));
-
-  clwpr.Set("DistFact", DoubleValue(DistFactor));
-  clwpr.Set("AngFact", DoubleValue(AngFactor));
-  clwpr.Set("UtilFact", DoubleValue(UtilFactor));
-  clwpr.Set("MACFact", DoubleValue(MACFactor));
-  clwpr.Set("CnFFact", DoubleValue(CnFFactor));
-  clwpr.Set("SNRFact", DoubleValue(SNRFactor));
-  clwpr.Set("RoadFact", DoubleValue(RoadFactor));
-  clwpr.Set("RoadMap", PointerValue(&gridMap));
 
   Ipv4StaticRoutingHelper staticRouting;
 //  LogComponentEnableAll(LOG_PREFIX_NODE);
 
   Ipv4ListRoutingHelper list;
 //  list.Add (staticRouting, 0);
-  list.Add (clwpr, 10);
+  list.Add (olsr, 10);
 
   InternetStackHelper internet;
   internet.SetRoutingHelper (list);
@@ -374,8 +300,8 @@ int main (int argc, char *argv[])
       wifiPhy.EnableAsciiAll (ascii.CreateFileStream ("wifi-simple-adhoc-clwpr-moving.tr"));
 //      wifiPhy.EnablePcap ("wifi-simple-adhoc-grid", devices);
       // Trace routing tables
-      Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> ("wifi-simple-adhoc-clwpr-moving.routes", std::ios::out);
-      clwpr.PrintRoutingTableAllEvery (Seconds (2), routingStream);
+      Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> ("wifi-simple-adhoc-olsr-moving.routes", std::ios::out);
+      olsr.PrintRoutingTableAllEvery (Seconds (2), routingStream);
 
       // To do-- enable an IP-level trace that shows forwarding events only
     }
@@ -392,12 +318,11 @@ int main (int argc, char *argv[])
   Simulator::Schedule ((Seconds (9.224302)), &GenerateTraffic, sources[9], packetSize, numPackets, interPacketInterval);
 
 
-  Config::ConnectWithoutContext("/NodeList/*/$ns3::clwpr::RoutingProtocol/CarryNForward", MakeCallback (&PacketCnF));
-  Config::ConnectWithoutContext("/NodeList/*/$ns3::clwpr::RoutingProtocol/Dequeue", MakeCallback (&PacketDequeue));
+
   Config::ConnectWithoutContext("/NodeList/*/$ns3::Ipv4L3Protocol/Drop", MakeCallback (&PacketDrop));
   Config::ConnectWithoutContext("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/WifiRemoteStationManager/MacTxFinalDataFailed", MakeCallback (&WifiRemStationTrace));
 //  Config::ConnectWithoutContext("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Mac/MacRxDrop", MakeCallback (&MacTrace));
-  Config::ConnectWithoutContext("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Mac/MacRx", MakeCallback (&MacTrace));
+//  Config::ConnectWithoutContext("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Mac/MacRx", MakeCallback (&MacTrace));
 
 //  Config::ConnectWithoutContext("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/$ns3::YansWifiPhy/PhyRxEnd", MakeCallback (&PhyRxTrace));
   Config::ConnectWithoutContext("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/$ns3::YansWifiPhy/PhyRxDrop", MakeCallback (&PhyDropTrace));

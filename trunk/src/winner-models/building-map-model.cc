@@ -40,13 +40,13 @@ BuildingMapModel::GetTypeId (void)
     .AddAttribute ("RoadMap","Road Map pointer",
                     PointerValue(0),
                     MakePointerAccessor(&BuildingMapModel::SetGridMap),
-                    MakePointerChecker<clwpr::GridMap>())
+                    MakePointerChecker<GridMap>())
     ;
   return tid;
 }
 
 void
-BuildingMapModel::SetGridMap (Ptr<clwpr::GridMap> map)
+BuildingMapModel::SetGridMap (Ptr<GridMap> map)
 {
   m_map = map;
 }
@@ -57,7 +57,7 @@ BuildingMapModel::BuildingMapModel ()
 BuildingMapModel::~BuildingMapModel ()
 {}
 
-BuildingMapModel::BuildingMapModel (std::string path, Ptr<clwpr::GridMap> map)
+BuildingMapModel::BuildingMapModel (std::string path, Ptr<GridMap> map)
 {
   m_path = path;
   m_map = map;

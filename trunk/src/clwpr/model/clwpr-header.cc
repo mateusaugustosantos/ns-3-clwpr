@@ -267,8 +267,13 @@ MessageHeader::Hello::Print (std::ostream &os) const
   // TODO
 }
 
-// Heading needed since we have only abs(velocity)
-
+/***
+ * Heading needed since we have only abs(velocity)
+ * Z-axis not needed since we work in 2D
+ * Devise a way to send double within integers -->
+ * multiply and divide by 1000 (accuracy 3 decimals)
+ * Better Solution use mantissa like in time.
+ */
 void
 MessageHeader::Hello::Serialize (Buffer::Iterator start) const
 {

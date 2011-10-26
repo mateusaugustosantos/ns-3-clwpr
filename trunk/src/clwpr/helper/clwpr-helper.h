@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
+ * Author: Konstantinos Katsaros <K.Katsaros@surrey.ac.uk> // adaptation to CLWPR
  */
 #ifndef CLWPR_HELPER_H
 #define CLWPR_HELPER_H

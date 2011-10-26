@@ -96,10 +96,10 @@
 //#define CLWPR_NEIGHB_HOLD_TIME        Seconds (5)
 /// Dup holding time.
 #define CLWPR_DUP_HOLD_TIME     Seconds (30)
-/// HNA holding time.
+/// HNA holding time. -- not currently used
 #define CLWPR_HNA_HOLD_TIME  Time(3.5 * m_hnaInterval)
 
-/********** Link types **********/
+/********** Link types -- not really used **********/
 
 /// Unspecified link type.
 #define CLWPR_UNSPEC_LINK       0
@@ -125,10 +125,11 @@
 /// Velocity Error
 #define VEL_ERR         0.001
 
-/// PREFERED SNR @ 470m
-#define PREF_SNR        21.8
-#define ALPHA          -1.5625
-#define BETA           -0.8
+/// SNR LIMIT -- For weighted SNIR function. Depends on propagation model
+#define SNIRmin			9.75
+#define PREF_SNIR        15
+#define ALPHA           -0.03628
+#define BETA            -5.25
 
 /// Maximum allowed jitter.
 #define CLWPR_MAXJITTER         (m_helloInterval.GetSeconds () / 4)
@@ -155,7 +156,7 @@ namespace clwpr {
 NS_LOG_COMPONENT_DEFINE ("ClwprRoutingProtocol");
 
 //-----------------------------------------------------------------------------
-/// Tag used by AODV implementation
+/// Tag used by AODV implementation for caching packets
 struct DeferredRouteOutputTag : public Tag
 {
   /// Positive if output device is fixed in RouteOutput
@@ -266,7 +267,7 @@ RoutingProtocol::GetTypeId (void)
                    DoubleValue(1),
                    MakeDoubleAccessor(&RoutingProtocol::m_Cfact),
                    MakeDoubleChecker<double>())
-    .AddAttribute ("SNRFact","SNR / CSI Weighting Factor",
+    .AddAttribute ("SNRFact","SNIR Weighting Factor",
                    DoubleValue(1),
                    MakeDoubleAccessor(&RoutingProtocol::m_Sfact),
                    MakeDoubleChecker<double>())
@@ -355,7 +356,6 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
   m_velocity = GetNodeVelocity( m_ipv4 );
   m_heading = GetNodeHeading( m_ipv4 );
   if (m_mapFlag){
-//      m_map = GridMap::GridMap(5, 5, 500);
       TestPosition();
   }
 
@@ -375,14 +375,9 @@ void RoutingProtocol::InitNodeList(){
 }
 
 void RoutingProtocol::TestPosition(){
-//      std::cout << "Testing Position Allocation \n";
-//      std::cout << "Position: (" <<m_position.x <<"," <<m_position.y << ") \n";
-//      std::cout << "Road ID :" << (int) GetNodeRoadId() << "\n";
         m_map->SetRoadXFromVehicle(GetNodePosition( m_ipv4 ).x);
         m_map->SetRoadYFromVehicle(GetNodePosition( m_ipv4 ).y);
         GetNodeRoadId(m_ipv4);
-//      std::cout << "X-axis = "<< m_map->GetRoadXId() << ", Y-Axis =" <<m_map->GetRoadYId() <<"\n";
-
 }
 
 void RoutingProtocol::DoDispose ()
@@ -412,14 +407,7 @@ RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream) const
     {
       *os << (*iter).first << "\t";
       *os << (*iter).second.nextAddr << "\t";
-//      if (Names::FindName (m_ipv4->GetNetDevice ((*iter).second.interface)) != "")
-//            {
-//             *os << Names::FindName (m_ipv4->GetNetDevice ((*iter).second.interface)) << "\t\t";
-//            }
-//      else
-//            {
       *os << (*iter).second.interface << "\t\t";
-//            }
       *os << (*iter).second.weight << "\t";
       *os << (*iter).second.distance << "\t";
       *os << "\n";
@@ -801,120 +789,23 @@ double RoutingProtocol::WeightingFunction(PosAssociationTuple const &ds_tuple)
   }
   return weight;
 }
-///
-/// \brief This auxiliary function is used for calculating the weight.
-///
-/// \param tuple the neighbor tuple which has the main address of the node we are going to calculate its weight to.
-/// \return the weight of the node.
-///
 
-//double RoutingProtocol::WeightComputation(NeighborTuple const &nb_tuple,
-//                                        PosAssociationTuple const &ds_tuple)
-//{
-//        double weight;
-//
-//        double dist = DistanceComputation(nb_tuple, ds_tuple);
-//        // Use of difference in headings
-//        double angle = 0;
-//
-//        int road_weight = 0;
-//        if (m_mapFlag){
-//
-//            angle = AngleComputation(nb_tuple.neighborHeading, ds_tuple.nodeHeading);
-//
-//            if (m_map->GetRoadYFromVehicle(nb_tuple.neighborPosition.x) != m_map->GetRoadYFromVehicle(ds_tuple.nodePosition.x)){
-//                road_weight += 50;
-//            }
-//            if (m_map->GetRoadYFromVehicle(nb_tuple.neighborPosition.y) != m_map->GetRoadYFromVehicle(ds_tuple.nodePosition.y)){
-//                road_weight += 50;
-//            }
-//        }
-//        else {
-////            angle = AngleComputation (nb_tuple.neighborVelocity , ds_tuple.nodeVelocity);
-//        }
-//
-//        if (dist != 0){
-//            weight = dist + angle + road_weight; // +(100*(int)nb_tuple.neighborUtilization) - (10*(int)nb_tuple.neighborMacInfo);
-//        }
-//        else {
-//            weight = 0;
-//        }
-////      if (nb_tuple.neighborUtilization!=0){
-////      NS_LOG_UNCOND ("utilization = " << (int)nb_tuple.neighborUtilization);
-////      NS_LOG_UNCOND ("mac info = " << (int)nb_tuple.neighborMacInfo);
-////      }
-//        NS_LOG_DEBUG("Distance = " << dist << " & Angl = " << angle);
-//        NS_LOG_DEBUG("Weight Calc =" << weight);
-//
-//        return weight;
-//        }
+/// This auxiliary function weights the SNR value of a link
 
-///
-/// \brief This auxiliary function is used for calculating the weight.
-///
-/// \param tuple the neighbor tuple which has the main address of the node we are going to calculate its weight to.
-/// \return the weight of the node.
-///
-//
-//double RoutingProtocol::WeightComputation(PosAssociationTuple const &ds_tuple)
-//{
-//        double weight;
-//
-//        double dist = DistanceComputation(ds_tuple);
-//
-//        double angle = 0;
-//
-//        int road_weight = 0;
-//        if (m_mapFlag){
-//
-//            angle = AngleComputation(GetNodeHeading( m_ipv4 ), ds_tuple.nodeHeading);
-//
-//            if (m_map->GetRoadYFromVehicle(GetNodePosition( m_ipv4 ).x) != m_map->GetRoadYFromVehicle(ds_tuple.nodePosition.x)){
-//                road_weight += 50;
-//            }
-//            if (m_map->GetRoadYFromVehicle(GetNodePosition( m_ipv4 ).y) != m_map->GetRoadYFromVehicle(ds_tuple.nodePosition.y)){
-//                road_weight += 50;
-//            }
-//        }
-//        else {
-////            angle = AngleComputation(GetNodeVelocity(m_ipv4) , ds_tuple.nodeVelocity);
-//        }
-//
-//        if (dist != 0){
-//            weight = dist + angle + road_weight; // +(100*(int) GetNodeUtilization(m_ipv4)) - (10*(int) GetNodeMacInfo (m_ipv4));
-//        }
-//        else {
-//            weight = 0;
-//        }
-//        NS_LOG_DEBUG("Distance = " << dist << " & Angl = " << angle);
-//        NS_LOG_DEBUG("Weight Calc =" << weight);
-//        return weight;
-//        }
-///
-/// \brief This auxiliary function is used for calculating 
-/// the distance between two nodes.
-///
-/// \param  s_node the neightbor node.
-/// \param  d_node the destination node.
-/// \return the distance between those two nodes.
-///
-
-/// This auxiliary function normalizes the SNR value of a link
-/// based on the SNR value of a static link at 495m with 802.11p (OFDM 3Mbps 10MHz) -->noise = 103.976dBm
-
-double RoutingProtocol::SNRFunction(double n_SNR)
+double RoutingProtocol::SNRFunction(double n_SNIR)
 {
-  NS_LOG_DEBUG("SRN Value = " << n_SNR);
+  NS_LOG_DEBUG("SRN Value = " << n_SNIR);
 
-  double snr_func =0;
+  double snir_func =0;
 
-  if (n_SNR < PREF_SNR){
-        snr_func = ALPHA*(n_SNR - 21)*(n_SNR -21);      
+  if (n_SNIR < PREF_SNIR){
+        snir_func = ALPHA*(n_SNIR - SNIRmin)*(n_SNIR -SNIRmin);
   }
   else {
-        snr_func = BETA/(n_SNR - 21);
+//        snir_func = BETA/(PREF_SNIR - SNIRmin);
+        snir_func = BETA/(n_SNIR - SNIRmin);
   }
-  return snr_func;
+  return snir_func;
 }
 
 double RoutingProtocol::DistanceComputation(NeighborTuple const &nb_tuple, PosAssociationTuple const &ds_tuple)
@@ -927,7 +818,6 @@ double RoutingProtocol::DistanceComputation(NeighborTuple const &nb_tuple, PosAs
         Time now = Simulator::Now();
 
         if (m_mapFlag){
-//        uint8_t nb_roadId = nb_tuple.neighborRoadId;
           if (m_predictFlag){
               NS_LOG_INFO("Prediction ON");
               double nb_heading = nb_tuple.neighborHeading;
@@ -937,7 +827,6 @@ double RoutingProtocol::DistanceComputation(NeighborTuple const &nb_tuple, PosAs
           int nb_X = m_map->GetRoadXFromVehicle(nb_pos.x);
           int nb_Y = m_map->GetRoadYFromVehicle(nb_pos.y);
 
-  //      uint8_t pos_roadId = ds_tuple.nodeRoadId;
           int pos_X = m_map->GetRoadXFromVehicle(ds_pos.x);
           int pos_Y = m_map->GetRoadYFromVehicle(ds_pos.y);
 
@@ -957,44 +846,8 @@ double RoutingProtocol::DistanceComputation(NeighborTuple const &nb_tuple, PosAs
             distance = CalculateDistance(nb_pos,ds_pos);
         }
 
-
-//        std::cout << "X-axis = "<< m_map->GetRoadXId() << ", Y-Axis =" <<m_map->GetRoadYId() <<"\n";
-//
-//      distance = m_map->GetCurvemetricDistance(PredictPosition(nb_pos, nb_vel, (now - nb_tuple.neighborTimestamp)),
-//          nb_X,
-//          nb_Y,
-//          PredictPosition(ds_pos, ds_vel, (now - ds_tuple.nodeTimestamp)),
-//          pos_X,
-//          pos_Y);
-
         return distance;
 }
-
-//Vector RoutingProtocol::PredictPosition(Vector pos, Vector vel, double heading, Time t)
-//{
-//        Vector new_pos;
-//        Time now = Simulator::Now();
-//        Time dt = now - t;
-//        if (vel.x != 0 && vel.y != 0 && vel.z != 0 ){
-//          if (dt.GetSeconds() > 0.5){
-//              if (heading == 0){
-//                  new_pos.x = pos.x + vel.x * dt.GetSeconds();
-//              }
-//              else if (heading == 180){
-//                  new_pos.x = pos.x - vel.x * dt.GetSeconds();
-//              }
-//              else if (heading == 90){
-//                  new_pos.y = pos.y + vel.y * dt.GetSeconds();
-//              }
-//              else if (heading == 270){
-//                  new_pos.y = pos.y - vel.y * dt.GetSeconds();
-//              }
-//            return new_pos;
-//          }
-//        }
-//        return pos;
-//
-//}
 
 Vector RoutingProtocol::PredictPositionGeneric(Vector pos, Vector vel, double heading, Time t){
   Vector new_pos;
@@ -1059,62 +912,11 @@ double RoutingProtocol::DistanceComputation(PosAssociationTuple const &ds_tuple)
         else{
             distance = CalculateDistance(GetNodePosition( m_ipv4 ),ds_pos);
         }
-//        std::cout << "X-axis = "<< m_map->GetRoadXId() << ", Y-Axis =" <<m_map->GetRoadYId() <<"\n";
-
-//        distance = m_map->GetCurvemetricDistance(m_position,
-//            m_map->GetRoadXFromVehicle(m_position.x),
-//            m_map->GetRoadYFromVehicle(m_position.y),
-//            PredictPosition(ds_pos, ds_vel, (now - ds_tuple.nodeTimestamp)),
-//            pos_X,
-//            pos_Y);
 
         return distance;
         }
 
 
-///// Computes the angle of two nodes given their velocity
-//// Can't use this since Velocities are only passed as magnituted (positive)
-//double RoutingProtocol::AngleComputation (Vector a_vel, Vector b_vel){
-//        double angle = 0;
-//
-//        double a_mag = sqrt(pow(a_vel.x,2) + pow(a_vel.y,2) + pow(a_vel.z,2));
-//        double b_mag = sqrt(pow(b_vel.x,2) + pow(b_vel.y,2) + pow(b_vel.z,2));
-//
-//        NS_LOG_DEBUG ("Velocity A mag = " << a_mag << " . Velocity B mag = " << b_mag);
-//        if (a_mag != 0 && b_mag !=0){
-//            double dot_p = (a_vel.x*b_vel.x)+(a_vel.y*b_vel.y)+(a_vel.z*b_vel.z);
-//            NS_LOG_DEBUG ("Dot Product =" << dot_p);
-//
-//            angle = acos(dot_p/(a_mag*b_mag))*(180/M_PI);
-//        }
-//        else{
-//            angle = 0;
-//          }
-//
-//        NS_LOG_DEBUG ("Angle = " <<angle);
-//        return angle;
-//
-//}
-
-///// Computes the angle between two nodes given their heading
-//double RoutingProtocol::AngleComputation (double a_heading, double b_heading){
-//
-//     // Both are moving
-//     if (a_heading >= 0 && a_heading <= 360 && b_heading >= 0 && b_heading <= 360){
-//         return std::abs(a_heading-b_heading);
-//     }
-//     // Only A is moving
-//     else if (a_heading >= 0 && a_heading <= 360){
-//         return a_heading;
-//     }
-//     // Only B is moving
-//     else if (b_heading >= 0 && b_heading <= 360){
-//         return b_heading;
-//     }
-//     // Both are static
-//     else
-//         return -1;
-//}
 /// Compute if a vehicle is approaching the destination or it is moving away
 /// Return Value {-1, 1}
 double RoutingProtocol::AngleComputation(Vector pos_a, double heading_a, Vector pos_b, double heading_b){
@@ -1285,28 +1087,6 @@ RoutingProtocol::RoutingTableComputation ()
                                 }
 //}
 
-                          // If, in the above, no R_dest_addr is equal to the main
-                          // address of the neighbor, then another new routing entry
-                          // MUST be added, with:
-                          //      R_dest_addr  = main address of the neighbor;
-                          //      R_next_addr  = L_neighbor_iface_addr of one of the
-                          //                     associated link tuple with L_time >= current time;
-                          //      R_iface_addr = L_local_iface_addr of the
-                          //                     associated link tuple.
-                          //      R_distance   = the distance of the neighbor to dest
-                          //      R_weight     = the weight of the neighbor to dest
-//
-//                        if (!nb_main_addr)
-//                              {
-//                                NS_LOG_LOGIC ("no R_dest_addr is equal to the main address of the neighbor "
-//                                                              "=> adding additional routing entry");
-//                                AddEntry(pos_tuple.nodeMainAddr,
-//                                                 nb_tuple.neighborMainAddr,
-//                                                 nb_tuple.neighborInterface,
-//                                                 DistanceComputation(nb_tuple, pos_tuple),
-//                                                 WeightComputation(nb_tuple, pos_tuple));
-//                              }
-                        //}
                         }
                 }
                 else {
@@ -1317,34 +1097,6 @@ RoutingProtocol::RoutingTableComputation ()
   else {
       NS_LOG_DEBUG (" Position Association Set is EMPTY " );
   }
-//  Dump();
-  //// 4. For each entry in the multiple interface association base
-  //// where there exists a routing entry such that:
-  ////  R_dest_addr  == I_main_addr  (of the multiple interface association entry)
-  //// AND there is no routing entry such that:
-  ////  R_dest_addr  == I_iface_addr
-  //const IfaceAssocSet &ifaceAssocSet = m_state.GetIfaceAssocSet ();
-  //for (IfaceAssocSet::const_iterator it = ifaceAssocSet.begin ();
-       //it != ifaceAssocSet.end (); it++)
-    //{
-      //IfaceAssocTuple const &tuple = *it;
-      //RoutingTableEntry entry1, entry2;
-      //bool have_entry1 = Lookup (tuple.mainAddr, entry1);
-      //bool have_entry2 = Lookup (tuple.ifaceAddr, entry2);
-      //if (have_entry1 && !have_entry2)
-        //{
-          //// then a route entry is created in the routing table with:
-          ////       R_dest_addr  =  I_iface_addr (of the multiple interface
-          ////                                     association entry)
-          ////       R_next_addr  =  R_next_addr  (of the recorded route entry)
-          ////       R_dist       =  R_dist       (of the recorded route entry)
-          ////       R_iface_addr =  R_iface_addr (of the recorded route entry).
-          //AddEntry (tuple.ifaceAddr,
-                    //entry1.nextAddr,
-                    //entry1.interface,
-                    //entry1.distance);
-        //}
-    //}
 
   // 5. For each tuple in the association set,
   //    If there is no entry in the routing table with:
@@ -1722,6 +1474,9 @@ Vector RoutingProtocol::GetNodeVelocity (Ptr<Ipv4> ipv4)
         return vel;
 }
 
+/***
+ * This method calculated the heading of a specific node
+ */
 double RoutingProtocol::GetNodeHeading (Ptr<Ipv4> ipv4)
 {
     double angle = 0;
@@ -1743,40 +1498,13 @@ double RoutingProtocol::GetNodeHeading (Ptr<Ipv4> ipv4)
 
         NS_LOG_DEBUG("Node's Heading in degrees =" << angle);
     }
-//    if (m_mapFlag){
-//        if (abs(vel.x) <= VEL_ERR && abs(vel.y) <= VEL_ERR ){
-//            angle = -1;
-//        }
-//        else {
-//            if ( vel.x == 0 ){
-//                if ( vel.y > 0){
-//                    angle = 90;
-//                }
-//                else {
-//                    angle = 270;
-//                }
-//            }
-//            else {
-//                if ( vel.x > 0){
-//                    angle = 0;
-//                }
-//                else {
-//                    angle = 180;
-//                }
-//            }
-//        }
-//
-//        NS_LOG_DEBUG (" Node " << ipv4 << " heading =" << angle);
-//        return angle;
-//    }
-//
-//    if (vel.x == 0 && vel.y == 0 && vel.z == 0)
-//       angle = -1;
-//    else
-//       angle = atan2 (vel.y, vel.x) * 180 / M_PI;
 
     return angle;
 }
+
+/***
+ * This function returns the road id on which the vehicle is traveling
+ */
 
 uint8_t RoutingProtocol::GetNodeRoadId (Ptr<Ipv4> ipv4)
 {
@@ -1787,6 +1515,9 @@ uint8_t RoutingProtocol::GetNodeRoadId (Ptr<Ipv4> ipv4)
         return m_map->FindRoadID(m_map->GetRoadXId(), m_map->GetRoadYId());
         }
 
+/***
+ * This function returns the number of packets in MAC queue as a metric of node utilization
+ */
 uint32_t RoutingProtocol::GetNodeUtilization (Ptr<Ipv4> ipv4)
 {
         // Show how to print the Wifi MAC queue size at a particular time
@@ -1808,6 +1539,12 @@ uint32_t RoutingProtocol::GetNodeUtilization (Ptr<Ipv4> ipv4)
 
 }
 
+/***
+ * This function returns the MAC Frame Error Rate for a specific ipv4
+ * Not sure if it works .. haven't seen it return any actual value
+ *
+ */
+
 uint32_t RoutingProtocol::GetNodeMacInfo (Ptr<Ipv4> ipv4)
 {
           Ptr<WifiNetDevice> dev = DynamicCast<WifiNetDevice> (m_node->GetDevice(0));
@@ -1826,6 +1563,10 @@ uint32_t RoutingProtocol::GetNodeMacInfo (Ptr<Ipv4> ipv4)
           return m_macInfo;
         }
 
+/***
+ * This function returns the number of cached packets from the routing protocol
+ * when the carry-n-forward is employed
+ */
 uint16_t RoutingProtocol::GetNodeCnFInfo(Ptr<Ipv4> ipv4)
 {
 //  NS_LOG_UNCOND ("CnF Queue = " << m_queue.GetSize());
@@ -1933,8 +1674,6 @@ RoutingProtocol::PopulateNeighborSet (const clwpr::MessageHeader &msg,
   NeighborTuple *nb_tuple = m_state.FindNeighborTuple (msg.GetOriginatorAddress ());
   Time now = Simulator::Now();
   // Update information of the neighbor...
-
-  NS_LOG_DEBUG ("HELLO message info :" << hello.position);
   if (nb_tuple != NULL)
     {
       nb_tuple->neighborPosition = hello.position;
@@ -2413,7 +2152,6 @@ RoutingProtocol::FindSendEntry (RoutingTableEntry const &entry,
                                 Ipv4Address const &src)
 {
   outEntry = entry;
-//  double min_dis = entry.distance;
   double min_weight = entry.weight;
   NS_LOG_DEBUG("Min Weight =" << min_weight);
   std::pair<std::multimap<Ipv4Address, RoutingTableEntry>::iterator,
@@ -2423,14 +2161,6 @@ RoutingProtocol::FindSendEntry (RoutingTableEntry const &entry,
 // of element with key dest
   ppp = m_table.equal_range(dest);
 
-  // Loop through range of maps of key "dest"
-
-//  for (std::multimap<Ipv4Address, RoutingTableEntry>::const_iterator iter = ppp.first;
-//    iter != ppp.second; ++iter){
-//        if ((*iter).second.distance < min_dis){
-//                outEntry = (*iter).second;
-//        }
-//      }
 
 
 // Based on the MIN WEIGHT and avoid to send it back
@@ -2645,13 +2375,6 @@ RoutingProtocol::DeferredRouteOutput (Ptr<const Packet> p, const Ipv4Header & he
       NS_LOG_LOGIC ("Add packet " << p->GetUid() << " to queue. Protocol " << (uint16_t) header.GetProtocol ());
       NS_LOG_DEBUG (" PACKET QUEUED ");
       m_queueTrace(header, p);
-//      RoutingTableEntry rt;
-//      bool result = m_routingTable.LookupRoute(header.GetDestination (), rt);
-//      if(!result || ((rt.GetFlag() != IN_SEARCH) && result))
-//        {
-//          NS_LOG_LOGIC ("Send RREQ to" <<header.GetDestination ());
-//          SendRequest (header.GetDestination ());
-//        }
     }
 }
 
@@ -2749,24 +2472,6 @@ bool RoutingProtocol::RouteInput  (Ptr<const Packet> p,
 
 
            std::map<Ptr<Socket> , Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin ();
-//           if (idev)
-//             {
-//               // Iterate to find an address on the idev device
-//               for (j = m_socketAddresses.begin (); j != m_socketAddresses.end (); ++j)
-//                 {
-//                   Ipv4Address addr = j->second.GetLocal ();
-//                   int32_t interface = m_ipv4->GetInterfaceForAddress (addr);
-//                   if (idev == m_ipv4->GetNetDevice (static_cast<uint32_t> (interface)))
-//                     {
-//                           rtentry->SetSource (addr);
-//                       break;
-//                     }
-//                 }
-//             }
-//           else
-//             {
-//                   rtentry->SetSource (j->second.GetLocal ());
-//             }
            // ----------- TESTING -----------//
            rtentry->SetSource(header.GetSource());
 
@@ -3030,7 +2735,7 @@ void RoutingProtocol::LocService(Ipv4Address dest){
 
   dest_ipv4 = (*it).second;
   PosAssociationTuple *tuple = m_state.FindPosAssociationTuple(dest);
-//  NS_LOG_DEBUG("Pos. Ass tuple " << tuple);
+  NS_LOG_DEBUG("Pos. Ass tuple " << tuple);
 
   if (tuple != NULL){ // Already exists.. update location
           NS_LOG_DEBUG (" Updating Pos.Ass. Entry");

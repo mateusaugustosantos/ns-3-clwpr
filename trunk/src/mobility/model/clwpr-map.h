@@ -34,8 +34,6 @@
 #include <utility>
 #include "ns3/object.h"
 namespace ns3 {
-namespace clwpr {
-
 
 
 class GridMap : public Object
@@ -70,9 +68,7 @@ class GridMap : public Object
 		  void GetNLOSDistance(Vector pos_a, int x_a, int y_a, Vector pos_b, int x_b, int y_b, double &dist1, double &dist2);
 		  int GetRoadXFromVehicle(double v_x);
 		  int GetRoadYFromVehicle(double v_y);
-//		  double GetLosDistance();
-//		  double GetNLosDistance();
 };
-}} // namespace clwpr, ns3
+} // namespace ns3
 
 #endif /* CLWPR_MAP_H_ */

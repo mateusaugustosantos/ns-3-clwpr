@@ -200,7 +200,7 @@ ClwprState::FindNeighborInterfaces (const Ipv4Address &neighborMainAddr) const
 
 /********** IP - Position Association Set Manipulation **********/
 
-void ClwprState::InitPosAssociationSet (){
+//void ClwprState::InitPosAssociationSet (){
 
 //// FOR STATIC 5x5 25 nodes
 //  PosAssociationTuple dst;
@@ -232,8 +232,8 @@ void ClwprState::InitPosAssociationSet (){
 //	dst.nodeVelocity =Vector(0,0,0);
 //	m_posAssociationSet.push_back (dst);
 
-	return ;
-}
+//	return ;
+//}
 
 
 PosAssociationTuple*

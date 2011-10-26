@@ -1,6 +1,6 @@
 /* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2011 Konstantinos Katsaros
+ * Copyright (c) 2011 Konstantinos Katsaros, University of Surrey
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -32,6 +32,10 @@
  * dynamic mobile ad hoc unicast routing protocol for vehicular networks.
  * It has been developed at the University of Surrey (UK) by Konstantinos Katsaros for NS-3.
  *
+ * Initial results are presented in : K.Katsaros, M.Dianati, R.Tafazolli, R.Kernchen
+ * "CLWPR - A Novel Cross-Layer Optimized Position Based Routing Protocol for VANETs",
+ * in IEEE Vehicular Networking Conference, 2011
+ *
  * Here is a summary of software's main features:
  *
  * \section api API and Usage
@@ -45,12 +49,15 @@
  *
  * In addition, the behavior of CLWPR can be modified by changing certain
  * attributes.  The method ns3::ClwprHelper::Set () can be used
- * to set CLWPR attributes.  These include HelloInterval. Other parameters
- * are defined as macros in clwpr-routing-protocol.cc.
+ * to set CLWPR attributes.  These include HelloInterval, Weighting Factors,
+ * a pointer to the underlying road topology map etc. The complete list of attributes
+ * can be found under RoutingProtocol::GetTypeId (). There are also 6 tracesources that
+ * can be monitored including received, transmitted, cached packets etc.
  *
- * Host Network Association (HNA) is supported in this implementation
- * of CLWPR. Refer to examples/routing/clwpr-hna.cc to see how the API
- * is used.
+ * Host Network Association (HNA) is not fully supported in this implementation
+ * of CLWPR. Since this started from OLSR implementation, any reference to HNA
+ * is from the former implementation of OLSR and not tested with CLWPR.
+ * Refer to examples/routing/clwpr-hna.cc to see how the API is used.
  *
  * \section list Open Issues
  * 
