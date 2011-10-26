@@ -45,7 +45,7 @@ private:
   virtual Vector DoGetVelocity (void) const;
 
   Vector m_position;
-  clwpr::GridMap m_map;
+  GridMap m_map;
 };
 
 }; // namespace ns3

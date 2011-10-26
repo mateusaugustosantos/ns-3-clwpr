@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
+ * Author: Konstantinos Katsaros <K.Katsaros@surrey.ac.uk> // adaptation to CLWPR
  */
 #include "clwpr-helper.h"
 #include "ns3/clwpr-routing-protocol.h"

@@ -117,12 +117,13 @@ public:
 
 
   // Position Association
+  // To match an IP with a GPS position
   const PosAssociationSet & GetPosAssociationSet () const  // Associations known to the node
   {
     return m_posAssociationSet;
   }
   // Position Association Initialise
-  void InitPosAssociationSet ();
+//  void InitPosAssociationSet ();
   PosAssociationTuple* FindPosAssociationTuple (const Ipv4Address &nodeMainAddr);
   void ErasePosAssociationTuple (const PosAssociationTuple &tuple);
   void InsertPosAssociationTuple (const PosAssociationTuple &tuple);

@@ -23,14 +23,13 @@
 #include <algorithm>
 
 namespace ns3 {
-namespace clwpr {
 
 NS_LOG_COMPONENT_DEFINE("ClwprMap");
 
 TypeId
 GridMap::GetTypeId (void)
 {
-  static TypeId tid = TypeId ("ns3::clwpr::GridMap")
+  static TypeId tid = TypeId ("ns3::GridMap")
     	.SetParent<Object> ()
         .AddConstructor<GridMap> ()
         ;
@@ -429,5 +428,4 @@ void GridMap::GetNLOSDistance(Vector pos_a,
 
 
 
-}
 }

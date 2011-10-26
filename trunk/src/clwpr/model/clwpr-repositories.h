@@ -66,6 +66,8 @@ operator << (std::ostream &os, const IfaceAssocTuple &tuple)
   return os;
 }
 
+
+// Not really used in CLWPR -- legacy from OLSR
 /// A Link Tuple.
 struct LinkTuple
 {
@@ -139,12 +141,6 @@ static inline bool
 operator == (const NeighborTuple &a, const NeighborTuple &b)
 {
   return (a.neighborMainAddr == b.neighborMainAddr);
-
-//          && a.neighborPosition.x == b.neighborPosition.x
-//          && a.neighborPosition.y == b.neighborPosition.y
-//          && a.neighborPosition.z == b.neighborPosition.z
-//          && a.neighborTimestamp == b.neighborTimestamp
-
 }
 
 static inline std::ostream&
@@ -251,7 +247,7 @@ operator << (std::ostream &os, const AssociationTuple &tuple)
 
 /// A Position Association Tuple
 /// Here we keep a track of the destinations with their latest position information
-// It is updated with hellos or with the location service
+// It is updated with hellos or with the location service when integrate one
 
 struct PosAssociationTuple
 {
@@ -274,10 +270,6 @@ static inline bool
 operator == (const PosAssociationTuple &a, const PosAssociationTuple &b)
 {
   return (a.nodeMainAddr == b.nodeMainAddr);
-//          && a.nodePosition.x == b.nodePosition.x
-//          && a.nodePosition.y == b.nodePosition.y
-//          && a.nodePosition.z == b.nodePosition.z
-//          && a.nodeTimestamp == b.nodeTimestamp);
 }
 
 static inline std::ostream&
@@ -298,9 +290,7 @@ operator << (std::ostream &os, const PosAssociationTuple &tuple)
 }
 
 
-//typedef std::vector<LinkTuple>			LinkSet;	///< Link Set type.
 typedef std::vector<NeighborTuple>		NeighborSet;	///< Neighbor Set type.
-//typedef std::vector<TwoHopNeighborTuple>	TwoHopNeighborSet; ///< 2-hop Neighbor Set type.
 typedef std::vector<DuplicateTuple>		DuplicateSet;	///< Duplicate Set type.
 typedef std::vector<IfaceAssocTuple>		IfaceAssocSet; ///< Interface Association Set type.
 typedef std::vector<AssociationTuple>		AssociationSet; ///< Association Set type.

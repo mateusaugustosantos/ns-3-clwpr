@@ -26,7 +26,7 @@
 #include "ns3/test.h"
 #include "clwpr-state.h"
 #include "clwpr-repositories.h"
-#include "ns3/clwpr-map.h"
+#include "clwpr-map.h"
 #include "clwpr-rqueue.h"
 
 #include "ns3/object.h"
@@ -41,7 +41,7 @@
 #include "ns3/ipv4-routing-protocol.h"
 #include "ns3/ipv4-static-routing.h"
 #include "ns3/ipv4-address.h"
-#include "ns3/vector.h" //for the Position and Velocity
+#include "ns3/vector.h" //for the Position and Velocity (Vector3D)
 #include "ns3/node.h"
 #include <vector>
 #include <map>
@@ -58,7 +58,6 @@ struct RoutingTableEntry
 {
   Ipv4Address destAddr;	///< Address of the destination node.
   Ipv4Address nextAddr;	///< Address of the next hop.
-//  Ipv4Address interface; ///< Interface index.
   uint32_t interface;
   double distance; ///< Distance in meters to the destination.
   double weight; ///< Output from the weighting function.
@@ -172,8 +171,6 @@ public:
 protected:
   virtual void DoStart (void);
 private:
-//  std::map<Ipv4Address, RoutingTableEntry> m_table; ///< Data structure for the routing table.
-
   // Need Multimap because for each Ipv4Adress multiple entries are added. 
   // For each destination EVERY neighbor gets an entry!!
   std::multimap<Ipv4Address, RoutingTableEntry> m_table; ///< Data structure for the routing table.
@@ -198,14 +195,14 @@ private:
   /// HNA messages' emission interval.
   Time m_hnaInterval;
 
-  /// Map Flag Integration
+  /// Components Integration
   /// 1 : true, 0 : false
-  bool m_mapFlag;
-  bool m_emapFlag;
-  bool m_predictFlag;
-  bool m_cacheFlag;
-  bool m_normFlag;
-  double m_txTh;
+  bool m_mapFlag; // Use curvementric distance
+  bool m_emapFlag; // Use navigation info
+  bool m_predictFlag; // Use prediction
+  bool m_cacheFlag; // Use carry-n-forward
+  bool m_normFlag; // Used for testing weighting function
+  double m_txTh; // Used as a threshold to reduce communication range
   double temp_snr;
 
   /// Distance weighting Factor
@@ -238,10 +235,6 @@ private:
    /// Number of Cached Packets
    uint16_t m_CnFinfo;
 
-//
-//   Ptr <WifiNetDevice> _device;
-//   Ptr<WifiMac> _mac ;
-//   Ptr<WifiRemoteStationManager> manager;
   /// Internal state with all needed data structs.
   ClwprState m_state;
 
@@ -308,28 +301,25 @@ private:
   uint16_t GetNodeCnFInfo (Ptr<Ipv4> ipv4);
   
   
-  /// Calculates the weight of a node towards the destination
-//  double WeightComputation(NeighborTuple const &nb_tuple, PosAssociationTuple const &pos_tuple);
-  /// Calculates the weight of a node towards the destination
-//  double WeightComputation(PosAssociationTuple const &pos_tuple);
+  /// Calculates the weight of a neighbouring node towards the destination
   double WeightingFunction(NeighborTuple const &nb_tuple, PosAssociationTuple const &ds_tuple);
+  /// Calculates the weight of 'me' towards the destination
   double WeightingFunction(PosAssociationTuple const &ds_tuple);
 
-  /// Normalize SRN value
-  double SNRFunction(double n_SNR);
+  /// Weighted SRN value
+  double SNRFunction(double n_SNIR);
 
   /// Calculates the distance between two nodes
-  // At the moment is only Euclidian Distance.
-  // Needs to be converted to 'curvemetric' distance
+  // If 'map-flag' is true then 'curvemetric' distance is calculated
+  // For me
   double DistanceComputation(PosAssociationTuple const &pos_tuple);
+  // For a neighbour
   double DistanceComputation(NeighborTuple const &nb_tuple, PosAssociationTuple const &pos_tuple);
-  
+
 //  Vector PredictPosition(Vector pos, Vector vel, double heading, Time t);
   Vector PredictPositionGeneric(Vector pos, Vector vel, double heading, Time t);
 
   /// Calculates the angle between two nodes' heading
-//  double AngleComputation (Vector a_vel, Vector b_vel);
-//  double AngleComputation (double a_heading, double b_heading);
   double AngleComputation (Vector pos_a, double heading_a, Vector pos_b, double heading_b);
 
   // Timer handlers
@@ -341,9 +331,6 @@ private:
   void HnaTimerExpire ();
 
   void DupTupleTimerExpire (Ipv4Address address, uint16_t sequenceNumber);
-//  bool m_linkTupleTimerFirstTime;
-//  void LinkTupleTimerExpire (Ipv4Address neighborIfaceAddr);
-//  void Nb2hopTupleTimerExpire (Ipv4Address neighborMainAddr, Ipv4Address twoHopNeighborAddr);
   void NeighborTupleTimerExpire (Ipv4Address neighborMainAddr);
   void IfaceAssocTupleTimerExpire (Ipv4Address ifaceAddr);
   void AssociationTupleTimerExpire (Ipv4Address gatewayAddr, Ipv4Address networkAddr, Ipv4Mask netmask);
@@ -363,16 +350,10 @@ private:
   void SendHello ();
   void SendHna ();
 
-//  void NeighborLoss (const LinkTuple &tuple);
   void AddDuplicateTuple (const DuplicateTuple &tuple);
   void RemoveDuplicateTuple (const DuplicateTuple &tuple);
-//  void LinkTupleAdded (const LinkTuple &tuple, uint8_t willingness);
-//  void RemoveLinkTuple (const LinkTuple &tuple);
-//  void LinkTupleUpdated (const LinkTuple &tuple, uint8_t willingness);
   void AddNeighborTuple (const NeighborTuple &tuple);
   void RemoveNeighborTuple (const NeighborTuple &tuple);
-//  void AddTwoHopNeighborTuple (const TwoHopNeighborTuple &tuple);
-//  void RemoveTwoHopNeighborTuple (const TwoHopNeighborTuple &tuple);
   void AddIfaceAssocTuple (const IfaceAssocTuple &tuple);
   void RemoveIfaceAssocTuple (const IfaceAssocTuple &tuple);
   void AddAssociationTuple (const AssociationTuple &tuple);
@@ -388,16 +369,10 @@ private:
   void ProcessHna (const clwpr::MessageHeader &msg,
                    const Ipv4Address &senderIface);
 
-//  void LinkSensing (const clwpr::MessageHeader &msg,
-//                    const clwpr::MessageHeader::Hello &hello,
-//                    const Ipv4Address &receiverIface,
-//                    const Ipv4Address &sender_iface);
   void PopulateNeighborSet (const clwpr::MessageHeader &msg,
                             const clwpr::MessageHeader::Hello &hello,
                             const Ipv4Address &iface);
                             
-//  void PopulateTwoHopNeighborSet (const clwpr::MessageHeader &msg,
-//                                  const clwpr::MessageHeader::Hello &hello);
 
   /// Check that address is one of my interfaces
   bool IsMyOwnAddress (const Ipv4Address & a) const;

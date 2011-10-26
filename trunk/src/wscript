@@ -62,8 +62,8 @@ all_modules = (
     'template',
     'clwpr',
     'physim-wifi',
-    'winner-models',
     'visibilityMap',
+    'winner-models',
     'geoLib',
     'utils',
     )
@@ -96,6 +96,7 @@ def configure(conf):
     conf.sub_config('openflow')
     conf.sub_config('stats')
     conf.sub_config('physim-wifi')
+
 
     blddir = os.path.abspath(os.path.join(conf.blddir, conf.env.variant()))
     conf.env.append_value('NS3_MODULE_PATH', blddir)
