@@ -39,8 +39,6 @@ MobilityHelper::MobilityHelper ()
       "Y", RandomVariableValue (ConstantVariable (0.0)));
   m_mobility.SetTypeId ("ns3::ConstantPositionMobilityModel");
 }
-
-
 MobilityHelper::~MobilityHelper ()
 {
 }
