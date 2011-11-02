@@ -26,7 +26,7 @@
 #include "ns3/test.h"
 #include "clwpr-state.h"
 #include "clwpr-repositories.h"
-#include "clwpr-map.h"
+#include "ns3/clwpr-map.h"
 #include "clwpr-rqueue.h"
 
 #include "ns3/object.h"
