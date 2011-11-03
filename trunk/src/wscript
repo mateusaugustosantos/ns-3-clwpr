@@ -61,7 +61,6 @@ all_modules = (
     'csma-layout',
     'template',
     'clwpr',
-    'physim-wifi',
     'visibilityMap',
     'winner-models',
     'geoLib',
@@ -95,7 +94,6 @@ def configure(conf):
     conf.sub_config('click')
     conf.sub_config('openflow')
     conf.sub_config('stats')
-    conf.sub_config('physim-wifi')
 
 
     blddir = os.path.abspath(os.path.join(conf.blddir, conf.env.variant()))
