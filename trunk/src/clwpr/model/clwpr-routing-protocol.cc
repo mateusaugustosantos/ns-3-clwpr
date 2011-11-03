@@ -351,7 +351,7 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
   m_init_list = false;
 
   m_hnaRoutingTable->SetIpv4 (ipv4);
-//  m_state.InitPosAssociationSet(); 
+//  m_state.InitPosAssociationSet();
   m_position = GetNodePosition( m_ipv4 );
   m_velocity = GetNodeVelocity( m_ipv4 );
   m_heading = GetNodeHeading( m_ipv4 );

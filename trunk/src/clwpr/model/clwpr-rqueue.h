@@ -22,6 +22,8 @@
  *      AODV-UU implementation by Erik Nordström of Uppsala University
  *      http://core.it.uu.se/core/index.php/AODV-UU
  *
+ * These methods were used 'as it is' for CLWPR
+ *
  * Authors: Elena Buchatskaia <borovkovaes@iitp.ru>
  *          Pavel Boyko <boyko@iitp.ru>
  */

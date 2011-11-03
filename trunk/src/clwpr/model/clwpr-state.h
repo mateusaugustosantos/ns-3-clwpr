@@ -51,29 +51,84 @@ public:
   ClwprState ()
   {}
   
-
-  // Neighbor
+/**
+ * This is a simple getter method to return a reference to NeighborSet
+ * as a const value
+ *
+ * @return const NeighborSet& a reference to the neighbor set
+ */
   const NeighborSet & GetNeighbors () const
   {
     return m_neighborSet;
   }
+  /**
+   * This is a simple getter method to return a reference to NeighborSet
+   *
+   * @return NeighborSet& a reference to the neighbor set
+   */
+
   NeighborSet & GetNeighbors ()
   {
     return m_neighborSet;
   }
+
+  /**
+   * This is a method to find the entry for a neighbor
+   *
+   * @param &mainAddr the Ipv4Addess to lookup
+   * @return NeighborTuple* a reference to the neighbor tuple
+   */
   NeighborTuple* FindNeighborTuple (const Ipv4Address &mainAddr);
-  const NeighborTuple* FindSymNeighborTuple (const Ipv4Address &mainAddr) const;
-  NeighborTuple* FindNeighborTuple (const Ipv4Address &mainAddr,
-                                    uint8_t willingness);
+
+
+//  const NeighborTuple* FindSymNeighborTuple (const Ipv4Address &mainAddr) const;
+//  NeighborTuple* FindNeighborTuple (const Ipv4Address &mainAddr,
+//                                    uint8_t willingness);
+
+  /**
+   * This is a method to erase a neighbor tuple based on a pointer to that tuple
+   *
+   * @param &neighborTuple the tuple to erase
+   */
   void EraseNeighborTuple (const NeighborTuple &neighborTuple);
+
+  /**
+   * This is a method to erase a neighbor tuple based on a pointer to its
+   * mainAddr
+   *
+   * @param &mainAddr the Ipv4Addess of the neighbor to erase
+   */
   void EraseNeighborTuple (const Ipv4Address &mainAddr);
+
+  /**
+   * This is a method to insert a neighbor tuple based on a pointer to a tuple
+   *
+   * @param &tuple the NeighborTuple to insert
+   */
   void InsertNeighborTuple (const NeighborTuple &tuple);
 
 
-  // Duplicate
+  /**
+   * This is a method to find a duplicate the entry for a neighbor
+   *
+   * @param &address the Ipv4Addess to lookup
+   * @param sequenceNumber
+   * @return DuplicateTuple* a reference to the duplicate tuple
+   */
   DuplicateTuple* FindDuplicateTuple (const Ipv4Address &address,
                                       uint16_t sequenceNumber);
+  /**
+   * This is a method to erase a duplicate the entry for a neighbor
+   *
+   * @param &tuple the DuplicateTuple to erase
+   */
   void EraseDuplicateTuple (const DuplicateTuple &tuple);
+
+  /**
+   * This is a method to insert a duplicate the entry for a neighbor
+   *
+   * @param &tuple the DuplicateTuple to insert
+   */
   void InsertDuplicateTuple (const DuplicateTuple &tuple);
 
 
@@ -91,7 +146,14 @@ public:
   void EraseIfaceAssocTuple (const IfaceAssocTuple &tuple);
   void InsertIfaceAssocTuple (const IfaceAssocTuple &tuple);
 
-  // Host-Network Association
+  /**
+   *  Host-Network Association
+   *
+   *  These methods are not tested for CLWPR yet
+   *  Legacy from OLSR
+   *
+   */
+
   const AssociationSet & GetAssociationSet () const  // Associations known to the node
   {
     return m_associationSet;
@@ -110,22 +172,50 @@ public:
   void EraseAssociation (const Association &tuple);
   void InsertAssociation (const Association &tuple);
 
-  // Returns a vector of all interfaces of a given neighbor, with the
-  // exception of the "main" one.
+
+
+  /**
+   * Returns a vector of all interfaces of a given neighbor, with the exception of the "main" one.
+   *
+   * @param neighborMainAddr
+   * @return vector<Ipv4Address>
+   */
   std::vector<Ipv4Address>
   FindNeighborInterfaces (const Ipv4Address &neighborMainAddr) const;
 
 
-  // Position Association
-  // To match an IP with a GPS position
+  /**
+   * Returns the PositionAssociationSet that associates a node (IP address) with a position
+   *
+   * @return PosAssociationSet&
+   */
   const PosAssociationSet & GetPosAssociationSet () const  // Associations known to the node
   {
     return m_posAssociationSet;
   }
-  // Position Association Initialise
-//  void InitPosAssociationSet ();
+
+  /**
+   * This method searches the positionAssociatinSet for a specific address and returns the entry
+   *
+   * @param &nodeMainAddr The address of the node to look up
+   * @return PosAssociationTuple*
+  */
   PosAssociationTuple* FindPosAssociationTuple (const Ipv4Address &nodeMainAddr);
+
+  /**
+   * This method erases an entry from the positionAssociationSet
+   *
+   * @param &tuple The tuple of the node to erase
+   *
+  */
   void ErasePosAssociationTuple (const PosAssociationTuple &tuple);
+
+  /**
+   * This method inserts a new entry in the positionAssociatinSet
+   *
+   * @param &tuple The tuple of the node to insert
+   *
+  */
   void InsertPosAssociationTuple (const PosAssociationTuple &tuple);
 };
 

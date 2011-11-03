@@ -61,7 +61,16 @@
  *
  * \section list Open Issues
  * 
- * Not yet a full implementation...
+ * 1. DCF error with some scenarios : assert failed. cond="m_lastNavStart < Simulator::Now ()",
+ * file=../src/wifi/model/dcf-manager.cc, line=722
+ *
+ * 2. HNA is not tested/supported yet
+ *
+ * 3. Currently there is no actual location service implemented, which is needed in all position based
+ * routing protocols. We use the global knowledge of ns-3 to get such information.
+ *
+ * 4. There is not optimal configuration for Weighting parameters yet.
+ *
  *
  */
 
