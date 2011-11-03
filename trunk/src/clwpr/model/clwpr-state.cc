@@ -45,17 +45,17 @@ ClwprState::FindNeighborTuple (Ipv4Address const &mainAddr)
   return NULL;
 }
 
-const NeighborTuple*
-ClwprState::FindSymNeighborTuple (Ipv4Address const &mainAddr) const
-{
-  for (NeighborSet::const_iterator it = m_neighborSet.begin ();
-       it != m_neighborSet.end (); it++)
-    {
-      if (it->neighborMainAddr == mainAddr && it->status == NeighborTuple::STATUS_SYM)
-        return &(*it);
-    }
-  return NULL;
-}
+//const NeighborTuple*
+//ClwprState::FindSymNeighborTuple (Ipv4Address const &mainAddr) const
+//{
+//  for (NeighborSet::const_iterator it = m_neighborSet.begin ();
+//       it != m_neighborSet.end (); it++)
+//    {
+//      if (it->neighborMainAddr == mainAddr && it->status == NeighborTuple::STATUS_SYM)
+//        return &(*it);
+//    }
+//  return NULL;
+//}
 
 
 void
