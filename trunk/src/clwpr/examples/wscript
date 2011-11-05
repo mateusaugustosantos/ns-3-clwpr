@@ -2,5 +2,5 @@
 
 def build(bld):
     obj = bld.create_ns3_program('simple-clwpr-example',
-                                 ['core', 'network', 'wifi', 'internet', 'clwpr', 'mobility', 'winner-models', 'flow-monitor', 'applications'])
+                                 ['core', 'network', 'wifi', 'internet', 'clwpr', 'mobility', 'flow-monitor', 'applications'])
     obj.source = 'simple-clwpr-example.cc'

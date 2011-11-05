@@ -18,8 +18,7 @@
  */
 
 /* 
- * This example demonstrated the use of CLWPR routing protocol, as well as the use of
- * Winner Propagation Loss module for urban vehicular ad-hoc scenarios.
+ * This example demonstrated the use of CLWPR routing protocol for urban vehicular ad-hoc scenarios.
  * Using Bonnmotion we generated the trace files which are loaded with the use of Ns2TransmobilityHelper
  * class to work with mobility. The scenario is a 5x5 ManhattanGrid network with 200 nodes, mean speed 15m/s, 
  * minimum speed 5m/s and grid distance of 500m.
@@ -27,11 +26,9 @@
  * Detailed example description.
  *
  *  - intended usage: this should be used in order to test and configure CLWPR routing protocol in an urban scenario.
- *                    Moreover, test the use of realistic propagation loss models which take into consideration buildings.
+ *                    
  *  - behavior:
  *      - GridMap object is created which specifies the underlying roadtopology. Currently only Manhattan Grid networks are supported.
- *      - BuildingMapModel and Shadowing objects are created afterwards.
- *      - According the the command line attributes we can use either WinnerB1LossModel or TwoRayGround propagation.
  *      - Ns2TransmobilityHelperTrace object is created, whith the specified trace file. At this moment, only
  *      specify the file, and no movements are scheduled.
  *      - A node container is created with the correct node number specified in the command line.
@@ -44,11 +41,11 @@
  *                     for these 10 concurrent connections. Also, using callbacks, we can monitor when a packet has been cached by the routing protocol
  *                     and when it has found a new route.
  *
- * Usage of clwpr, winner modules and ns2-mobility-trace:
+ * Usage of clwpr and ns2-mobility-trace:
  *
  *          ./waf --run "scratch/simple-clwpr-example --numNodes=200  --traceFile=./scratch/mobility.ns_movements --movingNodes=200 --duration=50   //
  *           --map=0 --predict=0 --TxR=500 --hello=1.5 --CnF=0 --cT=0 --DistFactor=1 --SNRFactor=0 --CnFFactor=0 --AngFactor=0 --RoadFactor=0 //
- *			--MACFactor=0 --UtilFactor=0 --vanet=1 --numPackets=400 --interval=0.1 --winner=1" 
+ *			--MACFactor=0 --UtilFactor=0 --vanet=1 --numPackets=400 --interval=0.1 " 
  *
  *          NOTE: ns2-traces-file could be an absolute or relative path. You could use the file default.ns_movements
  *                included in the same directory that the present file.
@@ -67,7 +64,6 @@
 #include "ns3/clwpr-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/flow-monitor-module.h"
-#include "ns3/winner-models-module.h"
 
 #include <sstream>
 #include <iostream>
@@ -100,7 +96,7 @@ static void GenerateTraffic (Ptr<Socket> socket, uint32_t pktSize,
       socket->Send (Create<Packet> (pktSize));
       Simulator::Schedule (pktInterval, &GenerateTraffic, 
                            socket, pktSize,pktCount-1, pktInterval);
-//      std::cout<< "Packet #" << pktCount << " queued."<<std::endl;
+      NS_LOG_DEBUG ( "Packet #" << pktCount << " queued.");
     }
   else
     {
@@ -139,7 +135,6 @@ int main (int argc, char *argv[])
   bool predict = false; // Enable prediction in CLWPR
   bool cache = false; // Enable Carry-n-Forward in CLWPR
   bool enchance = false; // Enable map information (road, angle)
-  bool winner = true; // Enable winner propagation models
   double cacheTime = 10.0; // max time to keep in cache
   int range = 500; // Communication range
   double hello = 1.5; // Hello interval time
@@ -184,7 +179,6 @@ int main (int argc, char *argv[])
   cmd.AddValue ("SNRFactor", "Enabling Carry'n'Forward mechanism", SNRFactor);
 
   cmd.AddValue ("vanet", " Set 802.11p ", vanet);
-  cmd.AddValue ("winner", " ENABLE WINNEL PROPAGATION LOSS MODELS ", winner);
   cmd.Parse (argc, argv);
 
 
@@ -195,7 +189,7 @@ int main (int argc, char *argv[])
 
   // disable fragmentation for frames below 2200 bytes
   Config::SetDefault ("ns3::WifiRemoteStationManager::FragmentationThreshold", StringValue ("2200"));
-  // turn off RTS/CTS for frames below 2200 bytes
+  // turn off RTS/CTS for frames below 500 bytes
   Config::SetDefault ("ns3::WifiRemoteStationManager::RtsCtsThreshold", StringValue ("500"));
   // Fix non-unicast data rate to be the same as that of unicast
   Config::SetDefault ("ns3::WifiRemoteStationManager::NonUnicastMode", 
@@ -220,30 +214,10 @@ int main (int argc, char *argv[])
 
 // Set up the road topology
   GridMap gridMap = GridMap(5, 5, distance);
-// Set up visibility and shadowing models
-  BuildingMapModel vis = BuildingMapModel("./scratch/visibility.txt", &gridMap);
-  ShadowingModel shadow = ShadowingModel();
 
-// Set up propagation models
-  if (winner){
-    wifiChannel.AddPropagationLoss("ns3::WinnerB1LossModel",
-		   	   	   	   	   	   	   "Frequency", DoubleValue(5.9e9),
-		   	   	   	   	   	   	   "EffEnvironmentHeight", DoubleValue(1),
-		   	   	   	   	   	   	   "VisibilityModel", PointerValue(&vis),
-		   	   	   	   	   	   	   "ShadowingModel", PointerValue(&shadow));
-	if (range == 500){
-   	  wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue(-96));
-	  wifiPhy.Set ("CcaMode1Threshold", DoubleValue(-99));
-	}
-	else if (range == 250){
-	  wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue(-83));
-	  wifiPhy.Set ("CcaMode1Threshold", DoubleValue(-86));
-	}
-  }
-  else {
-    wifiChannel.AddPropagationLoss ("ns3::TwoRayGroundPropagationLossModel",
-	 	  	  	  	  	  	  	    "SystemLoss", DoubleValue(1),
-		  	  	  	  	  	  	    "HeightAboveZ", DoubleValue(1.5));
+  wifiChannel.AddPropagationLoss ("ns3::TwoRayGroundPropagationLossModel",
+ 	  	  	  	  	  	  	    "SystemLoss", DoubleValue(1),
+	  	  	  	  	  	  	    "HeightAboveZ", DoubleValue(1.5));
     if (range == 500){
 	  wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue(-68));
 	  wifiPhy.Set ("CcaMode1Threshold", DoubleValue(-71));
@@ -252,7 +226,6 @@ int main (int argc, char *argv[])
 	  wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue(-61.8));
 	  wifiPhy.Set ("CcaMode1Threshold", DoubleValue(-64.8));
     }
-  }
 
   // Values for typical VANET scenarios according to 802.11p
   wifiPhy.Set ("TxPowerStart", DoubleValue(33));
@@ -268,12 +241,12 @@ int main (int argc, char *argv[])
   if (vanet){
        wifi.SetStandard (WIFI_PHY_STANDARD_80211p_CCH);
   }
-  else {
+  else { // If 802.11b is selected, be sure to check the phyMode, NO OFDM
       wifi.SetStandard (WIFI_PHY_STANDARD_80211b);
   }
   wifi.SetRemoteStationManager ("ns3::ConstantRateWifiManager",
                                 "DataMode",StringValue(phyMode),
-                                   "ControlMode",StringValue(phyMode));
+                                "ControlMode",StringValue(phyMode));
   // Set it to adhoc mode
   wifiMac.SetType ("ns3::AdhocWifiMac");
   NetDeviceContainer devices = wifi.Install (wifiPhy, wifiMac, c);
