@@ -61,10 +61,6 @@ all_modules = (
     'csma-layout',
     'template',
     'clwpr',
-    'visibilityMap',
-    'winner-models',
-    'geoLib',
-    'utils',
     )
 
 def set_options(opt):
