@@ -48,6 +48,7 @@
 #include <math.h>
 #include <utility>
 #include "ns3/node-list.h"
+#include "ns3/snr-tag.h"
 
 namespace ns3 {
 namespace clwpr {
@@ -68,45 +69,8 @@ struct RoutingTableEntry
 };
 
 
-/// Tag used to get SNR value from PHY
-struct SnrTag : public Tag
-{
-  /// Positive if output device is fixed in RouteOutput
-  double snr;
+// Tag used to get SNR value from PHY moved at wifi module as separate header file
 
-  SnrTag (double s = -1) : Tag(), snr (s) {}
-
-  static TypeId GetTypeId ()
-  {
-    static TypeId tid = TypeId ("ns3::clwpr::SnrTag").SetParent<Tag> ();
-    return tid;
-  }
-
-  TypeId  GetInstanceTypeId () const
-  {
-    return GetTypeId ();
-  }
-
-  uint32_t GetSerializedSize () const
-  {
-    return sizeof(double);
-  }
-
-  void  Serialize (TagBuffer i) const
-  {
-    i.WriteDouble(snr);
-  }
-
-  void  Deserialize (TagBuffer i)
-  {
-    snr = i.ReadDouble();
-  }
-
-  void  Print (std::ostream &os) const
-  {
-    os << "SNRTag: SNR value of received packet = " << snr;
-  }
-};
 
 
 ///
