@@ -35,7 +35,7 @@
 #include "ns3/pointer.h"
 #include "ns3/net-device.h"
 #include "ns3/trace-source-accessor.h"
-#include "ns3/clwpr-routing-protocol.h"
+#include "ns3/snr-tag.h"
 #include <math.h>
 
 NS_LOG_COMPONENT_DEFINE ("YansWifiPhy");
