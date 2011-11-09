@@ -132,6 +132,7 @@ def build(bld):
         'model/block-ack-agreement.h',
         'model/block-ack-manager.h',
         'model/block-ack-cache.h',
+        'model/snr-tag.h',
         'helper/athstats-helper.h',
         'helper/wifi-helper.h',
         'helper/yans-wifi-helper.h',

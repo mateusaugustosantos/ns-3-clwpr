@@ -313,8 +313,8 @@ int GridMap::FindWPX (Vector p, int r_index)
 	return wpX;
 }
 
-/// Calculates the distance between two nodes
-/// Using map information -- Curvemetric distance
+/// Calculates the LOS and NLOS distance between two nodes
+/// Using map information
 void GridMap::GetNLOSDistance(Vector pos_a,
 							  int x_a,
 							  int y_a,
