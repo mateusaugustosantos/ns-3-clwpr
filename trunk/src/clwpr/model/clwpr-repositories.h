@@ -290,12 +290,12 @@ operator << (std::ostream &os, const PosAssociationTuple &tuple)
 }
 
 
-typedef std::vector<NeighborTuple>		NeighborSet;	///< Neighbor Set type.
-typedef std::vector<DuplicateTuple>		DuplicateSet;	///< Duplicate Set type.
-typedef std::vector<IfaceAssocTuple>		IfaceAssocSet; ///< Interface Association Set type.
-typedef std::vector<AssociationTuple>		AssociationSet; ///< Association Set type.
-typedef std::vector<Association>		Associations; ///< Association Set type.
-typedef std::vector<PosAssociationTuple>		PosAssociationSet; ///< IP - Position Association Set type.
+typedef std::vector<clwpr::NeighborTuple>		NeighborSet;	///< Neighbor Set type.
+typedef std::vector<clwpr::DuplicateTuple>		DuplicateSet;	///< Duplicate Set type.
+typedef std::vector<clwpr::IfaceAssocTuple>		IfaceAssocSet; ///< Interface Association Set type.
+typedef std::vector<clwpr::AssociationTuple>		AssociationSet; ///< Association Set type.
+typedef std::vector<clwpr::Association>		Associations; ///< Association Set type.
+typedef std::vector<clwpr::PosAssociationTuple>		PosAssociationSet; ///< IP - Position Association Set type.
 
 }}; // namespace ns3, clwpr
 

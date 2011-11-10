@@ -51,9 +51,8 @@ MobilityModel::GetTypeId (void)
 }
 
 MobilityModel::MobilityModel ()
-  : m_node(0), // Added Ramon Bauza 16/09/10
-    m_antennaHeight(1.5) // Added Ramon Bauza 21/09/10
-{}
+{
+}
 
 MobilityModel::~MobilityModel ()
 {
@@ -96,42 +95,7 @@ MobilityModel::GetRelativeVelocity (Ptr<const MobilityModel> other) const
 void
 MobilityModel::NotifyCourseChange (void) const
 {
-  m_courseChangeTrace(this);
-}
-
-// Added Ramon Bauza 16/09/10
-float
-MobilityModel::GetAntennaHeight (void) const
-{
-  return DoGetAntennaHeight ();
-}
-
-// Added Ramon Bauza 21/09/10
-void 
-MobilityModel::SetAntennaHeight (const float &antennaHeight)
-{
-  m_antennaHeight = antennaHeight;
-}
-
-// Added Ramon Bauza 21/09/10
-float 
-MobilityModel::DoGetAntennaHeight (void) const
-{
-  return m_antennaHeight;
-}
-
-// Added Ramon Bauza 16/09/10
-Ptr<Node> 
-MobilityModel::GetNode (void) const
-{
-  return m_node;
-}
-
-// Added Ramon Bauza 16/09/10
-void 
-MobilityModel::SetNode (Ptr<Node> node) 
-{
-  m_node = node;
+  m_courseChangeTrace (this);
 }
 
 } // namespace ns3
