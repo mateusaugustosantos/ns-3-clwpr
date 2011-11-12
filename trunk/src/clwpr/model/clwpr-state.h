@@ -28,7 +28,7 @@
 
 namespace ns3 {
 
-using namespace ns3::clwpr;
+using namespace clwpr;
 
 /// This class encapsulates all data structures needed for maintaining internal state of an CLWPR node.
 class ClwprState
